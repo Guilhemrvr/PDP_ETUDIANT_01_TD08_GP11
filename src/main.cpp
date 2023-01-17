@@ -20,6 +20,9 @@
 //#define DHTTYPE    DHT22     // DHT 22 (AM2302)
 //#define DHTTYPE    DHT21     // DHT 21 (AM2301)
 
+#define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
+#define TIME_TO_SLEEP  5        /* Time ESP32 will go to sleep (in seconds) */
+
 // See guide for details on sensor wiring and usage:
 //   https://learn.adafruit.com/dht/overview
 
@@ -56,30 +59,39 @@ void setup() {
   Serial.println(F("------------------------------------"));
   // Set delay between sensor readings based on sensor details.
   delayMS = sensor.min_delay / 1000;
+
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+  Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) + " Seconds");
+
+  Serial.println("Going to sleep now");
+  delay(1000);
+  Serial.flush(); 
+  esp_deep_sleep_start();
+  Serial.println("This message will never be printed");
 }
 
 void loop() {
-  // Delay between measurements.
-  delay(delayMS);
-  // Get temperature event and print its value.
-  sensors_event_t event;
-  dht.temperature().getEvent(&event);
-  if (isnan(event.temperature)) {
-    Serial.println(F("Error reading temperature!"));
-  }
-  else {
-    Serial.print(F("Temperature: "));
-    Serial.print(event.temperature);
-    Serial.println(F("°C"));
-  }
-  // Get humidity event and print its value.
-  dht.humidity().getEvent(&event);
-  if (isnan(event.relative_humidity)) {
-    Serial.println(F("Error reading humidity!"));
-  }
-  else {
-    Serial.print(F("Humidity: "));
-    Serial.print(event.relative_humidity);
-    Serial.println(F("%"));
-  }
+  // // Delay between measurements.
+  // delay(delayMS);
+  // // Get temperature event and print its value.
+  // sensors_event_t event;
+  // dht.temperature().getEvent(&event);
+  // if (isnan(event.temperature)) {
+  //   Serial.println(F("Error reading temperature!"));
+  // }
+  // else {
+  //   Serial.print(F("Temperature: "));
+  //   Serial.print(event.temperature);
+  //   Serial.println(F("°C"));
+  // }
+  // // Get humidity event and print its value.
+  // dht.humidity().getEvent(&event);
+  // if (isnan(event.relative_humidity)) {
+  //   Serial.println(F("Error reading humidity!"));
+  // }
+  // else {
+  //   Serial.print(F("Humidity: "));
+  //   Serial.print(event.relative_humidity);
+  //   Serial.println(F("%"));
+  // }
 }
